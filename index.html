@@ -1,60 +1,229 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FeedBack Board</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>React Feedback Form</title>
+   
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .form-container {
+      background-color: #f9f9f9;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    button {
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #3a7bc8;
+    }
+    .rating-container {
+      display: flex;
+      gap: 10px;
+    }
+    .star {
+      cursor: pointer;
+      font-size: 24px;
+      color: #ddd;
+    }
+    .star.selected {
+      color: #ffc107;
+    }
+    .success-message {
+      background-color: #d4edda;
+      color: #155724;
+      padding: 10px;
+      border-radius: 4px;
+      margin-top: 20px;
+    }
+    .error {
+      color: #dc3545;
+      font-size: 14px;
+      margin-top: 5px;
+    }
+  </style>
 </head>
 <body>
-    <h1>FeedBack Board</h1>
+  <div id="root"></div>
 
-    <marquee>feedback</marquee>
-
-<form action ="./feedback Page" method ="get">
-    <h2>Submit your Valuable Feedback</h2>
-
-    <p>
-        <label for ="name">Name (required):</label>
-
-        <input type ="text" name ="name "id="name"required/>
-
-    </p>
-    <p> 
-    <label for ="email">Email(required):</label>
-
-
-    <input type="email" name="email" id="email" required/>
-</p>
-<p>
-    <label for ="comment">  Comments : </label>
-
-    <input type="text" name="comment" id ="comment" required>
-
-
-</p>
-
-</form>
-
-
-
-
-
-
-
-
-
-
-
-</body>
-    <script>
-    const header={
-    <header>
-        <h1>Feedback Form</h1>
-        </header>
+  <script type="text/babel">
+    function FeedbackForm() {
+      const [formData, setFormData] = React.useState({
+        name: '',
+        email: '',
+        rating: 0,
+        feedback: ''
+      });
+      
+      const [errors, setErrors] = React.useState({});
+      const [isSubmitted, setIsSubmitted] = React.useState(false);
+      
+      const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData({
+          ...formData,
+          [name]: value
+        });
+      };
+      
+      const handleRatingClick = (rating) => {
+        setFormData({
+          ...formData,
+          rating
+        });
+      };
+      
+      const validateForm = () => {
+        const newErrors = {};
+        
+        if (!formData.name.trim()) {
+          newErrors.name = 'Name is required';
+        }
+        
+        if (!formData.email.trim()) {
+          newErrors.email = 'Email is required';
+        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+          newErrors.email = 'Email is invalid';
+        }
+        
+        if (formData.rating === 0) {
+          newErrors.rating = 'Please select a rating';
+        }
+        
+        if (!formData.feedback.trim()) {
+          newErrors.feedback = 'Feedback is required';
+        }
+        
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+      };
+      
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        
+        if (validateForm()) {
+          console.log('Form submitted:', formData);
+          setIsSubmitted(true);
+         }
+      };
+      
+      if (isSubmitted) {
+        return (
+          <div className="form-container">
+            <div className="success-message">
+              <h2>Thank you for your feedback!</h2>
+              <p>We appreciate you taking the time to share your thoughts with us.</p>
+              <button onClick={() => {
+                setFormData({ name: '', email: '', rating: 0, feedback: '' });
+                setIsSubmitted(false);
+              }}>
+                Submit Another Response
+              </button>
+            </div>
+          </div>
+        );
+      }
+      
+      return (
+        <div className="form-container">
+          <h1>Feedback Form</h1>
+          <p>We value your feedback! Please let us know how we're doing.</p>
+          
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label htmlFor="name">Name</label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+              />
+              {errors.name && <div className="error">{errors.name}</div>}
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+              />
+              {errors.email && <div className="error">{errors.email}</div>}
+            </div>
+            
+            <div className="form-group">
+              <label>Rating</label>
+              <div className="rating-container">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <span
+                    key={star}
+                    className={`star ${formData.rating >= star ? 'selected' : ''}`}
+                    onClick={() => handleRatingClick(star)}
+                  >
+                    ★
+                  </span>
+                ))}
+              </div>
+              {errors.rating && <div className="error">{errors.rating}</div>}
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="feedback">Feedback</label>
+              <textarea
+                id="feedback"
+                name="feedback"
+                rows="4"
+                value={formData.feedback}
+                onChange={handleChange}
+              ></textarea>
+              {errors.feedback && <div className="error">{errors.feedback}</div>}
+            </div>
+            
+            <button type="submit">Submit Feedback</button>
+          </form>
+        </div>
+      );
     }
-    <script>
     
-
-    
-
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<FeedbackForm />);
+  </script>
+</body>
 </html>
